@@ -1483,6 +1483,15 @@ namespace Microsoft.Kusto.ServiceLayer.Connection
                     conn.Open();
                 }
             }
+            else
+            {
+                // This function was no op if forceReopen = false
+                // So added this code to check for underlying connection 
+                if (conn.GetUnderlyingConnection() == null)
+                {
+                    conn.Open();
+                }
+            }
         }
     }
 
