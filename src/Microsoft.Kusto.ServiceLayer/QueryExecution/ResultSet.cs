@@ -338,7 +338,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             //
             Validate.IsNotNull(nameof(dbDataReader), dbDataReader);
 
-            Task availableTask = null;
+            //Task availableTask = null;
             try
             {
                 // Verify the request hasn't been cancelled
@@ -360,7 +360,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                     // Invoke the SendCurrentResults() asynchronously that will send the results available notification
                     //   and also trigger the timer to send periodic updates.
                     //
-                    availableTask = SendCurrentResults();
+                    //availableTask = SendCurrentResults();
 
                     while (await dataReader.ReadAsync(cancellationToken))
                     {
@@ -374,7 +374,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 // await the completion of available notification in case it is not already done before proceeding
                 //
-                await availableTask;
+                //await availableTask;
 
                 // now set the flag to indicate that we are done reading. this equates to Complete flag to be marked 'True' in any future notifications.
                 //
@@ -383,13 +383,13 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
 
                 // Make a final call to SendCurrentResults() and await its completion. If the previously scheduled task already took care of latest status send then this should be a no-op
                 //
-                await SendCurrentResults();
+                //await SendCurrentResults();
 
 
                 // and finally:
                 // Make a call to send ResultCompletion and await its completion. This is just for backward compatibility with older protocol
                 //
-                await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
+                //await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
             }
         }
 
@@ -594,7 +594,7 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
             SendCurrentResults().Wait();
         }
 
-        private async Task SendCurrentResults()
+        public async Task SendCurrentResults()
         {
             try
             {
@@ -658,7 +658,12 @@ namespace Microsoft.Kusto.ServiceLayer.QueryExecution
                 }
             }
             finally
-            { 
+            {
+                // and finally:
+                // Make a call to send ResultCompletion and await its completion. This is just for backward compatibility with older protocol
+                //
+                await (ResultCompletion?.Invoke(this) ?? Task.CompletedTask);
+
                 // Release the sendResultsSemphore so the next invocation gets unblocked
                 //
                 sendResultsSemphore.Release();
